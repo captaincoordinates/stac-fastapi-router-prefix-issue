@@ -2,21 +2,11 @@ version: '3.8'
 
 services:
 
-  # rproxy:
-  #   build:
-  #     context: ./rproxy
-  #   ports:
-  #     - 8080:80
-  #   volumes:
-  #     - type: bind
-  #       source: ./rproxy/src
-  #       target: /src
-
   stac:
     build:
       context: ./stac-fastapi
     ports:
-      - 8081:80
+      - 8080:80
     volumes:
       - type: bind
         source: ./stac-fastapi/src
