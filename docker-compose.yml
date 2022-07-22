@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+
+  # rproxy:
+  #   build:
+  #     context: ./rproxy
+  #   ports:
+  #     - 8080:80
+  #   volumes:
+  #     - type: bind
+  #       source: ./rproxy/src
+  #       target: /src
+
+  stac:
+    build:
+      context: ./stac-fastapi
+    ports:
+      - 8081:80
+    volumes:
+      - type: bind
+        source: ./stac-fastapi/src
+        target: /src
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASS: password
+      POSTGRES_DBNAME: postgis
+      POSTGRES_HOST_READER: pgstac
+      POSTGRES_HOST_WRITER: pgstac
+      POSTGRES_PORT: 5432
+    depends_on:
+      pgstac:
+        condition: service_healthy
+
+  stac-load:
+    build:
+      context: ./stac-load
+      args:
+        PGSTAC_VERSION: ${PGSTAC_VERSION:-0.6.2}
+    volumes:
+      - type: bind
+        source: ./stac-load/src
+        target: /src
+      - type: bind
+        source: ./stac-load/json
+        target: /data
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASS: password
+      POSTGRES_DBNAME: postgis
+      POSTGRES_HOST: pgstac
+      POSTGRES_PORT: 5432
+      COLLECTIONS_DIR: /data/collections
+      ITEMS_DIR: /data/items
+    depends_on:
+      pgstac:
+        condition: service_healthy
+
+  pgstac:
+    platform: linux/amd64
+    image: ghcr.io/stac-utils/pgstac:v${PGSTAC_VERSION:-0.6.2}
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=username
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=postgis
+      - PGUSER=username
+      - PGDATABASE=postgis
+    command: postgres -N 500
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U username"]
+      interval: 3s
+      timeout: 1s
+      retries: 10
