@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-pip install -r ./rproxy/requirements.txt
+pushd $(dirname $0)/..
+
 pip install -r ./stac-fastapi/requirements.txt
+docker-compose build
