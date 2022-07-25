@@ -2,6 +2,8 @@
 
 This repo demonstrates a problem in [stac-fastapi](https://github.com/stac-utils/stac-fastapi) with router prefixes in path handling.
 
+**This branch** tests a fix for the issue based on [a fork](https://github.com/drnextgis/stac-fastapi/tree/router_prefix)
+
 ## To Reproduce
 1. docker-compose up
 2. navigate to http://localhost:8080/docs in browser
